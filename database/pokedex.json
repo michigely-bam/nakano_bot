@@ -1,0 +1,82 @@
+{
+  "users": {
+    "5492644156919@s.whatsapp.net": {
+      "pokedex": [
+        {
+          "id": 175,
+          "nombre": "Togepi",
+          "tipos": "Fairy",
+          "rareza": "⭐ Común",
+          "imagen": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/175.png",
+          "statsTotal": 245,
+          "cantidad": 1,
+          "fecha": 1783049734891
+        },
+        {
+          "id": 994,
+          "nombre": "Iron-moth",
+          "tipos": "Fire / Poison",
+          "rareza": "💎 Épico",
+          "imagen": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/994.png",
+          "statsTotal": 570,
+          "cantidad": 1,
+          "fecha": 1783108793205
+        },
+        {
+          "id": 460,
+          "nombre": "Abomasnow",
+          "tipos": "Grass / Ice",
+          "rareza": "✨ Raro",
+          "imagen": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/460.png",
+          "statsTotal": 494,
+          "cantidad": 1,
+          "fecha": 1783110980450
+        },
+        {
+          "id": 905,
+          "nombre": "Enamorus-incarnate",
+          "tipos": "Fairy / Flying",
+          "rareza": "💎 Épico",
+          "imagen": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/905.png",
+          "statsTotal": 580,
+          "cantidad": 1,
+          "fecha": 1783448784677
+        }
+      ],
+      "contador": 4,
+      "lastGacha": 1783448756026
+    },
+    "56931189817@s.whatsapp.net": {
+      "pokedex": [],
+      "contador": 0,
+      "lastGacha": 1783209006566
+    },
+    "50377312675@s.whatsapp.net": {
+      "pokedex": [
+        {
+          "id": 887,
+          "nombre": "Dragapult",
+          "tipos": "Dragon / Ghost",
+          "rareza": "🌈 Legendario",
+          "imagen": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/887.png",
+          "statsTotal": 600,
+          "cantidad": 1,
+          "fecha": 1783385453645
+        }
+      ],
+      "contador": 1,
+      "lastGacha": 1783385409991
+    },
+    "5492646762285@s.whatsapp.net": {
+      "pokedex": [],
+      "contador": 0,
+      "lastGacha": 1783448170021
+    },
+    "51970334698@s.whatsapp.net": {
+      "pokedex": [],
+      "contador": 0,
+      "lastGacha": 1784515883296
+    }
+  },
+  "tempGacha": {}
+}

@@ -1,0 +1,61 @@
+{
+  "51970334698": {
+    "number": "51970334698",
+    "name": "卐ⁱᵃᵐ『Michigely_bam ᵗᵉᵗᵒˢ ʸ ᵃᵈᵒ'ˢ ᶠᵃⁿ ᴏʟᴠɪᴅᴀʟᴏ ʙᴀᴋᴀ』ᴼᶠⁱᶜⁱᵃˡ",
+    "coins": 47,
+    "bank": 0,
+    "mana": 50,
+    "minerals": {
+      "piedras": 0,
+      "diamantes": 0,
+      "esmeraldas": 0,
+      "oro": 0
+    },
+    "health": 69,
+    "lastMine": 0,
+    "lastWork": 1784515871627,
+    "lastCrime": 1784519102779,
+    "items": {
+      "agua": 0,
+      "vendas": 0,
+      "pastillas": 0
+    }
+  },
+  "584242773183": {
+    "number": "584242773183",
+    "name": "ツ𝙮𝙤𝙨𝙪𝙚×͜×",
+    "coins": 0,
+    "bank": 0,
+    "health": 100,
+    "mana": 50,
+    "minerals": {
+      "piedras": 0,
+      "diamantes": 0,
+      "esmeraldas": 0,
+      "oro": 0
+    }
+  },
+  "5493764223147": {
+    "name": "BOT UWU😉",
+    "coins": 297,
+    "bank": 0,
+    "minerals": {
+      "oro": 10,
+      "diamantes": 5,
+      "esmeraldas": 8,
+      "piedras": 0
+    },
+    "health": 100,
+    "mana": 50,
+    "items": {
+      "agua": 2,
+      "vendas": 1,
+      "pico": 1
+    },
+    "lastWork": 0,
+    "lastCrime": 0,
+    "lastHunt": 0,
+    "lastMine": 0,
+    "lastClaim": 1784832191598
+  }
+}

@@ -1,0 +1,72 @@
+[
+  {
+    "userId": "37031996583942@lid",
+    "characters": [
+      {
+        "characterId": "404",
+        "name": "Sleepy Mita",
+        "value": "7500",
+        "source": "MiSide"
+      },
+      {
+        "characterId": "466",
+        "name": "Rokusuke Kōenji",
+        "value": "7500",
+        "source": "Classroom of the Elite"
+      },
+      {
+        "characterId": "518",
+        "name": "Haruta Shigemo",
+        "value": "7500",
+        "source": "Jujutsu Kaisen"
+      },
+      {
+        "characterId": "468",
+        "name": "Natasha",
+        "value": "7500",
+        "source": "Honkai Star Rail"
+      },
+      {
+        "characterId": "180",
+        "name": "Shinoa hiiragi",
+        "value": "7560",
+        "source": "Owari no Seraph"
+      },
+      {
+        "characterId": "134",
+        "name": "Yotsuba Nakano",
+        "value": "7500",
+        "source": "Gotoubun no Hanayome"
+      },
+      {
+        "characterId": "513",
+        "name": "Mei Mei",
+        "value": "7500",
+        "source": "Jujutsu Kaisen"
+      },
+      {
+        "characterId": "464",
+        "name": "Suzune Horikita",
+        "value": "7500",
+        "source": "Classroom of the Elite"
+      },
+      {
+        "characterId": "30",
+        "name": "Ayane Shirakawa",
+        "value": "7500",
+        "source": "Overflow"
+      }
+    ]
+  },
+  {
+    "userId": "120363408963824114@newsletter",
+    "characters": [
+      {
+        "characterId": "243",
+        "name": "Soi Fon",
+        "value": "7500",
+        "source": "Bleach"
+      }
+    ]
+  }
+]
