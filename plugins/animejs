@@ -1,0 +1,47 @@
+export default {
+    name: 'anime',
+    alias: ['ani', 'animedl'],
+    description: 'Descarga un capítulo de anime.',
+    category: 'download',
+
+    async execute({ sock, m, args, reply }) {
+        if (args.length < 2) {
+            return reply(
+                'Uso:\n' +
+                '.anime <nombre> | <capítulo>\n\n' +
+                'Ejemplo:\n' +
+                '.anime Las Quintillizas temporada 1 | 1'
+            );
+        }
+
+        const texto = args.join(' ');
+        const [nombreAnime, capitulo] = texto.split('|').map(v => v.trim());
+
+        if (!nombreAnime || !capitulo) {
+            return reply('Formato incorrecto.');
+        }
+
+        await reply('🔎 Buscando anime...');
+
+        const anime = await buscarAnime(nombreAnime);
+        if (!anime) return reply('Anime no encontrado.');
+
+        const episodio = await obtenerEpisodio(anime.id, Number(capitulo));
+        if (!episodio) return reply('Ese capítulo no existe.');
+
+        await reply('⏳ Descargando...');
+
+        const video = await descargarVideo(episodio.id);
+
+        await sock.sendMessage(m.chat, {
+            video: { url: video },
+            mimetype: 'video/mp4',
+            fileName: `${anime.nombre} - Cap ${capitulo}.mp4`
+        }, { quoted: m });
+    }
+}
+
+// Implementar:
+// buscarAnime()
+// obtenerEpisodio()
+// descargarVideo()
