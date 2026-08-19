@@ -69,22 +69,11 @@ export default {
         from,
         {
           messageContextInfo: {
-            threadId: [],
-
             deviceListMetadata: {
               senderKeyIndexes: [],
               recipientKeyIndexes: []
             },
-
-            deviceListMetadataVersion: 2,
-
-            botMetadata: {
-              messageDisclaimerText: 'Contenido Completo de Meta Ai',
-
-              richResponseSourcesMetadata: {
-                sources: []
-              }
-            }
+            deviceListMetadataVersion: 2
           },
 
           botForwardedMessage: {
@@ -95,17 +84,6 @@ export default {
 
                 unifiedResponse: {
                   data
-                },
-
-                contextInfo: {
-                  forwardingScore: 1,
-                  isForwarded: true,
-
-                  forwardedAiBotMessageInfo: {
-                    botJid: '867051314767696@bot'
-                  },
-
-                  forwardOrigin: 4
                 }
               }
             }
