@@ -185,7 +185,7 @@ async function sendMetaMsg(
 }
 
 export default {
-  name: 'randm',
+  name: 'xxx',
   alias: ['metamsg', 'genai'],
   description:
     'Envía mensajes enriquecidos con texto, imagen, botón o tabla.',
