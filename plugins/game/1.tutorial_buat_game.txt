@@ -1,0 +1,108 @@
+===========================================================
+    TUTORIAL MEMBUAT PLUGIN GAME SENDIRI (REFACTORED V2)
+===========================================================
+Sistem game sekarang sudah di-refactor menggunakan arsitektur "Self-Registering Plugins". Artinya, semua konfigurasi game cukup dilakukan di 1 file plugin di dalam folder \`plugins/game/\`.
+
+Berikut adalah panduan lengkap, profesional, dan strict-type untuk membuat game baru.
+
+-----------------------------------------------------------
+1. STRUKTUR FILE
+-----------------------------------------------------------
+Untuk membuat game baru (misal: Tebak Kucing), kamu butuh 2 file:
+1. File Data: \`src/data/tebakkucing.json\`
+2. File Plugin: \`plugins/game/tebakkucing.js\`
+NOTE: wajib sama yak, nama filename nya
+
+-----------------------------------------------------------
+2. FILE DATA (JSON VALIDATION & FORMAT)
+-----------------------------------------------------------
+File JSON harus berisi Array of Objects. Sistem memiliki fallback dan field yang bisa dikustomisasi, tapi secara default mengharapkan struktur berikut:
+
+A. GAME TEKS (Standard)
+[
+  {
+    "index": 0,
+    "soal": "Kucing yang tidak memiliki bulu disebut?",
+    "jawaban": "Sphynx"
+  },
+  {
+    "index": 1,
+    "soal": "Kucing ras terbesar di dunia?",
+    "jawaban": "Maine Coon"
+  }
+]
+
+B. GAME GAMBAR (Image Based)
+[
+  {
+    "index": 0,
+    "img": "https://domain.com/kucing1.jpg",
+    "jawaban": "Anggora",
+    "deskripsi": "Berasal dari Turki" // Opsional, sebagai soal/keterangan tambahan
+  }
+]
+
+**Validasi & Syarat JSON:**
+- JSON harus Valid (tidak boleh ada koma berlebih di akhir array/object).
+- Pastikan encoding file adalah UTF-8 (tanpa BOM).
+- Field wajib default: \`soal\` (pertanyaan) dan \`jawaban\`. Jika menggunakan field lain, harus di-setting di konfigurasi (lihat bagian \`questionField\` dan \`answerField\`).
+
+-----------------------------------------------------------
+3. FILE PLUGIN (JAVASCRIPT)
+-----------------------------------------------------------
+Buat file \`plugins/game/tebakkucing.js\` lalu sertakan template kode ini:
+
+\`\`\`javascript
+import { games } from '../../src/lib/ourin-games.js'
+
+// 1. REGISTRASI GAME KE ENGINE
+games.register('tebakkucing', {
+    // === METADATA ===
+    alias: ['tkucing', 'guesscat'],       // (Array) Alternatif command
+    emoji: '🐱',                          // (String) Ikon game
+    title: 'TEBAK KUCING',                // (String) Judul kapital
+    description: 'Tebak jenis ras kucing',// (String) Deskripsi menu
+    
+    // === BEHAVIOR & TIMING ===
+    timeout: 60000,                       // (Number) Waktu jawab (MS). Default: 60000 (60 dtk)
+    cooldown: 5,                          // (Number) Jeda antar command (Detik). Default: 5
+    
+    // === REWARDS (Hadiah Game) ===
+    // Opsional: Jika tidak diisi, otomatis pakai random reward.
+    // Jika diisi false (rewards: false), maka tidak ada hadiah sama sekali.
+    rewards: {
+        energi: 5,                        // Atau bisa pakai key 'limit'
+        koin: 1000,                       // Atau bisa pakai key 'balance'
+        exp: 2000
+    },
+
+    // === DATA CONFIGURATION ===
+    dataFile: 'tebakkucing.json',         // (String) Nama JSON. Default = <nama_game>.json
+    questionField: 'soal',                // (String) Key JSON untuk soal. Default = 'soal'
+    answerField: 'jawaban',               // (String) Key JSON untuk jawaban. Default = 'jawaban'
+    
+    // === IMAGE CONFIGURATION (Jika game gambar) ===
+    hasImage: false,                      // (Boolean) Apakah ini game tebak gambar? Default: false
+    imageField: 'img',                    // (String) Key JSON URL gambar. Default = 'img'
+    
+    // === EKSTRA ===
+    hintCount: 3                          // (Number) Maksimal hint progresif
+})
+
+// 2. EXPORT INSTANCE HANDLER (WAJIB STANDAR INI)
+const { config: pluginConfig, handler, answerHandler } = games.createPlugin('tebakkucing')
+export { pluginConfig as config, handler, answerHandler }
+\`\`\`
+
+-----------------------------------------------------------
+4. CARA ENGINE BEKERJA (Under The Hood)
+-----------------------------------------------------------
+1. Saat Load: \`ourin-plugins.js\` memuat \`tebakkucing.js\`.
+2. Registrasi: Fungsi \`games.register\` menyimpan parameter config-mu ke dalam memori Registry sentral.
+3. Hooking: \`src/handler.js\` mendeteksi adanya eksport \`answerHandler\` lalu mencegat semua pesan text masuk untuk memvalidasi apakah user sedang dalam sesi 'tebakkucing' dan menjawab benar (menggunakan Levenshtein distance >= 85%).
+4. Reward: Diberikan secara otomatis menggunakan kalkulasi random dari \`getRandomReward()\` (EXP, Koin, Limit) + Level Up detector.
+
+Tiga baris export di bawah sangat krusial, dilarang dihapus:
+**\`export { pluginConfig as config, handler, answerHandler }\`**
+
+Selesai! Tidak perlu mengedit \`ourin-games.js\` atau \`handler.js\` lagi setiap menambah game baru!
