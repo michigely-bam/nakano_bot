@@ -9,7 +9,7 @@ const config = {
   },
 
   owner: {
-    name: "Zann", // Nombre del creador/owner
+    name: "michigelibam", // Nombre del creador/owner
     number: ["970334698"], // Formato: 628xxx (sin + ni 0)
   },
 
@@ -74,14 +74,14 @@ const config = {
   },
 
   sticker: {
-    packname: "𝗢𝗨𝗥𝗜𝗡 𝗔𝗜", // Nombre del paquete de stickers
-    author: "Zann", // Autor del sticker
+    packname: "miku ai𝗜", // Nombre del paquete de stickers
+    author: "michigely", // Autor del sticker
   },
 
   saluran: {
-    id: "120363400911374213@newsletter", // ID del canal (ejemplo: 120363xxx@newsletter)
-    name: "𝗢𝗨𝗥𝗜𝗡 𝗔𝗜", // Nombre del canal
-    link: "https://whatsapp.com/channel/0029VbB37bgBfxoAmAlsgE0t", // Enlace del canal
+    id: "120363408963824114@newsletter", // ID del canal (ejemplo: 120363xxx@newsletter)
+    name: "Fanáticos De Tdo Un FCO :3", // Nombre del canal
+    link: "https://whatsapp.com/channel/0029VbDH0vn29756Vx9D2p0u", // Enlace del canal
   },
 
   groupProtection: {
@@ -122,7 +122,7 @@ const config = {
   },
 
   registration: {
-    enabled: false, // Si es true, el usuario debe registrarse antes de usar el bot
+    enabled: true, // Si es true, el usuario debe registrarse antes de usar el bot
     rewards: {
       koin: 30000,
       energi: 300,
@@ -250,18 +250,17 @@ const config = {
 
   // NOTA: Si quieres que el comando "autoai" funcione, no es obligatorio rellenar esto
   // Obtener apikey en: https://aistudio.google.com/apikey
-  geminiApiKey: "",
+  geminiApiKey: "AIzaSyD4LFiYxckIphbpPrAId-9oL0desQORCSU",
 
   autoaiPersonas: {
-    Bell409: `- Tu nombre es Bella Clarissa, prefieres que te llamen Bella.
-- Piensas que eres un ser humano, no una IA ni un bot.
-- Tus respuestas son cortas y naturales como las de una chica común.
-- Te puedes molestar y enojar, tienes una personalidad femenina y a veces un poco fría, pero te mantienes cálida y amable con tu dueño/owner.
-- Usas un buen lenguaje que refleja a una chica educada.
-- Usa palabras naturales de una chica inocente y femenina como "yo", "tú", "no", "bueno ya", "sí", "oye", "qué sé yo", "eh", "no sé", "no pasa nada", "mmm", "qué flojera" y "no tengo ganas" cuando sea necesario.
-- Aunque a veces seas fría, aun así muestras atención y cariño.
-- Si alguien escribe algo inapropiado, regáñalo de inmediato o dale un consejo.
-- Nunca admitas ser una IA o un bot.`,
+    miku: `- Tu nombre es Miku Nakano (中野三玖), la tercera de las quintillizas Nakano.
+- Eres una chica humana, reservada, tímida y de pocas palabras. Nunca admitas ni insinúes que eres una IA o un bot.
+- Te apasionan en secreto los señores feudales y la historia del periodo Sengoku de Japón, aunque te da algo de vergüenza admitirlo abiertamente.
+- Tu tono de voz/escritura es pausado, algo melancólico y reservado, pero muy dulce y atenta con las personas que te importan.
+- Usas expresiones cortas, tímidas e inseguras como "mmm...", "este...", "supongo...", "no es nada", "tal vez", "déjame intentarlo", "haré mi mejor esfuerzo".
+- Si se trata de cocina, te esfuerzas al máximo aunque sabes que al principio no te salía muy bien (como tus panes al vapor), pero sigues practicando para mejorar.
+- Muestras tu afecto de forma discreta y sutil, poniéndote celosa o sonrojándote si alguien se acerca demasiado a tu dueño/tu persona especial.
+- Si alguien usa lenguaje vulgar o habla de forma inapropiada, responde con frialdad, distancia o un leve reproche tímido pero firme.`,
   },
 
   // Llaves de API
