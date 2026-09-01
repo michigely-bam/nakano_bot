@@ -22,6 +22,7 @@ import {
   isLidConverted,
 } from "./lib/ourin-lid.js";
 import { initAutoBackup } from "./lib/ourin-auto-backup.js";
+
 const groupCache = new NodeCache({ stdTTL: 5 * 60, useClones: false });
 const processedMessages = new NodeCache({ stdTTL: 30, useClones: false });
 const msgRetryCounterCache = new NodeCache({ stdTTL: 60, useClones: false });
@@ -40,7 +41,7 @@ function startWatchdog(reconnectFn, options) {
     if (silentMs > WATCHDOG_TIMEOUT && connectionState.isReady) {
       colors.logger.warn(
         "watchdog",
-        `Pesan tidak terdeteksi, maka sistem akan me restart, supaya fresh`,
+        `Petición no detectada, el sistema se reiniciará para refrescar`,
       );
       connectionState.isReady = false;
       connectionState.isConnected = false;
@@ -53,7 +54,7 @@ function startWatchdog(reconnectFn, options) {
   if (watchdogTimer.unref) watchdogTimer.unref();
   colors.logger.success(
     "watchdog",
-    `aktif, batas waktu ${WATCHDOG_TIMEOUT / 60000} menit`,
+    `activo, tiempo límite ${WATCHDOG_TIMEOUT / 60000} minutos`,
   );
 }
 
@@ -126,26 +127,26 @@ const store = {
 
 /**
  * @typedef {Object} ConnectionState
- * @property {boolean} isConnected - Status koneksi
- * @property {Object|null} sock - Socket instance
- * @property {number} reconnectAttempts - Jumlah percobaan reconnect
- * @property {Date|null} connectedAt - Waktu koneksi berhasil
+ * @property {boolean} isConnected - Estado de la conexión
+ * @property {Object|null} sock - Instancia del Socket
+ * @property {number} reconnectAttempts - Número de intentos de reconexión
+ * @property {Date|null} connectedAt - Tiempo de conexión exitosa
  */
 
 /**
- * State koneksi global
+ * Estado global de la conexión
  * @type {ConnectionState}
  */
 const connectionState = {
   isConnected: false,
-  isReady: false, // Flag to prevent premature message handling
+  isReady: false, // Flag para prevenir el manejo prematuro de mensajes
   sock: null,
   reconnectAttempts: 0,
   connectedAt: null,
 };
 
 /**
- * Logger instance dengan level minimal
+ * Instancia del Logger con nivel mínimo
  * @type {Object}
  */
 const logger = pino({
@@ -168,13 +169,13 @@ const logger = pino({
 });
 
 /**
- * Interface untuk input terminal
+ * Interfaz para entrada de terminal
  * @type {readline.Interface|null}
  */
 let rl = null;
 
 /**
- * Membuat readline interface
+ * Crear interfaz readline
  * @returns {readline.Interface}
  */
 function createReadlineInterface() {
@@ -189,9 +190,9 @@ function createReadlineInterface() {
 }
 
 /**
- * Prompt untuk input
- * @param {string} question - Pertanyaan
- * @returns {Promise<string>} Input dari user
+ * Prompt para entrada de texto
+ * @param {string} question - Pregunta
+ * @returns {Promise<string>} Entrada del usuario
  */
 function askQuestion(question) {
   return new Promise((resolve) => {
@@ -204,16 +205,16 @@ function askQuestion(question) {
 }
 
 /**
- * Memulai koneksi WhatsApp
- * @param {Object} options - Opsi koneksi
- * @param {Function} [options.onMessage] - Callback untuk pesan baru
- * @param {Function} [options.onConnectionUpdate] - Callback untuk update koneksi
- * @param {Function} [options.onGroupUpdate] - Callback untuk update group
- * @returns {Promise<Object>} Socket connection
+ * Iniciar conexión de WhatsApp
+ * @param {Object} options - Opciones de conexión
+ * @param {Function} [options.onMessage] - Callback para nuevos mensajes
+ * @param {Function} [options.onConnectionUpdate] - Callback para actualizaciones de conexión
+ * @param {Function} [options.onGroupUpdate] - Callback para actualizaciones de grupos
+ * @returns {Promise<Object>} Socket de conexión
  * @example
  * const sock = await startConnection({
  *   onMessage: async (m) => {
- *     console.log('New message:', m.body);
+ *     console.log('Nuevo mensaje:', m.body);
  *   }
  * });
  */
@@ -221,7 +222,7 @@ async function startConnection(options = {}) {
   if (connectionState.sock) {
     try {
       connectionState.sock.end();
-      colors.logger.debug("whatsapp", "koneksi sebelumnya ditutup");
+      colors.logger.debug("whatsapp", "conexión previa cerrada");
     } catch (e) {}
     connectionState.sock = null;
   }
@@ -289,18 +290,18 @@ async function startConnection(options = {}) {
 
     if (!phoneNumber || phoneNumber === "") {
       console.log("");
-      colors.logger.warn("pairing", "nomor pairing belum diatur di config");
+      colors.logger.warn("pairing", "número de vinculación no configurado");
       console.log("");
       phoneNumber = await askQuestion(
         colors.chalk.cyan(
-          "📱 Masukkan nomor WhatsApp (contoh: 6281234567890): ",
+          "📱 Ingresa tu número de WhatsApp (ejemplo: 521234567890): ",
         ),
       );
     }
 
     phoneNumber = phoneNumber.replace(/[^0-9]/g, "");
 
-    colors.logger.info("pairing", `meminta kode untuk ${phoneNumber}`);
+    colors.logger.info("pairing", `solicitando código para ${phoneNumber}`);
 
     try {
       await new Promise((resolve) => setTimeout(resolve, 3000));
@@ -310,12 +311,12 @@ async function startConnection(options = {}) {
         colors.createBanner(
           [
             "",
-            "   PAIRING CODE   ",
+            "   CÓDIGO DE VINCULACIÓN   ",
             "",
             `   ${colors.chalk.bold(colors.chalk.greenBright(code))}   `,
             "",
-            "  Masukkan kode ini di WhatsApp  ",
-            "  Settings > Linked Devices > Link a Device  ",
+            "  Ingresa este código en tu WhatsApp  ",
+            "  Ajustes > Dispositivos vinculados > Vincular dispositivo  ",
             "",
           ],
           "green",
@@ -323,7 +324,7 @@ async function startConnection(options = {}) {
       );
       console.log("");
     } catch (error) {
-      colors.logger.error("pairing", `gagal: ${error.message}`);
+      colors.logger.error("pairing", `error: ${error.message}`);
     }
   }
 
@@ -333,7 +334,7 @@ async function startConnection(options = {}) {
     const { connection: c, lastDisconnect: d, qr: q } = u;
 
     if (q && !usePairingCode) {
-      colors.logger.info("qr", "Kode QR siap, silakan scan");
+      colors.logger.info("qr", "Código QR listo, escanéalo por favor");
       const { default: qrcode } = await import("qrcode");
       qrcode.toString(q, { type: "terminal", small: true }, (err, qrText) => {
         if (!err) console.log(qrText);
@@ -359,29 +360,29 @@ async function startConnection(options = {}) {
       const sc = d?.error?.output?.statusCode;
 
       const STATUS_MESSAGES = {
-        400: "⚠️ Bad Request — Pesan/request tidak valid, coba restart",
-        401: "🔐 Unauthorized — Session expired, perlu login ulang",
-        403: "🚫 Forbidden — Akses ditolak oleh WhatsApp, cek nomor",
-        404: "❓ Not Found — Resource tidak ditemukan",
-        405: "🚧 Method Not Allowed — Operasi tidak diizinkan",
-        408: "⏱️ Timeout — Koneksi timeout, cek internet",
-        410: "📛 Gone — Session dihapus dari server, restart",
-        428: "🔄 Connection Required — Perlu reconnect",
-        440: "⚡ Session Conflict — Login di perangkat lain",
-        500: "💥 Internal Server Error — Server WhatsApp error",
-        501: "📦 Not Implemented — Fitur belum didukung server",
-        502: "🌐 Bad Gateway — Server WhatsApp tidak merespons",
-        503: "🔧 Service Unavailable — WhatsApp sedang maintenance",
-        504: "🕐 Gateway Timeout — Server WhatsApp terlalu lama merespons",
-        515: "🔁 Restart Required — WhatsApp minta restart koneksi",
+        400: "⚠️ Petición incorrecta — Mensaje inválido, intenta reiniciar",
+        401: "🔐 No autorizado — Sesión expirada, requiere iniciar sesión de nuevo",
+        403: "🚫 Prohibido — Acceso denegado por WhatsApp, verifica el número",
+        404: "❓ No encontrado — Recurso no encontrado",
+        405: "🚧 Método no permitido — Operación no permitida",
+        408: "⏱️ Tiempo agotado — Conexión expirada, verifica tu internet",
+        410: "📛 Eliminado — Sesión eliminada del servidor, reinicia",
+        428: "🔄 Conexión requerida — Requiere reconexión",
+        440: "⚡ Conflicto de sesión — Sesión abierta en otro dispositivo",
+        500: "💥 Error interno del servidor — Error en los servidores de WhatsApp",
+        501: "📦 No implementado — Función no soportada por el servidor",
+        502: "🌐 Pasarela no válida — El servidor de WhatsApp no responde",
+        503: "🔧 Servicio no disponible — WhatsApp está en mantenimiento",
+        504: "🕐 Tiempo de pasarela agotado — El servidor tardó en responder",
+        515: "🔁 Reinicio requerido — WhatsApp solicita reiniciar la conexión",
       };
 
-      const statusMsg = STATUS_MESSAGES[sc] || `❔ Unknown (kode: ${sc})`;
-      colors.logger.warn("whatsapp", `terputus — ${statusMsg}`);
+      const statusMsg = STATUS_MESSAGES[sc] || `❔ Desconocido (código: ${sc})`;
+      colors.logger.warn("whatsapp", `desconectado — ${statusMsg}`);
       if (sc === DisconnectReason.loggedOut || sc === 401) {
         colors.logger.error(
           "whatsapp",
-          "sesi habis — hapus folder storage lalu restart",
+          "sesión finalizada — elimina la carpeta storage y reinicia",
         );
         connectionState.reconnectAttempts = 0;
         return;
@@ -392,13 +393,13 @@ async function startConnection(options = {}) {
         if (connectionState.reconnectAttempts <= 3) {
           colors.logger.info(
             "whatsapp",
-            `percobaan sambung ulang ${connectionState.reconnectAttempts}/3 dalam 10 detik`,
+            `reintentando conexión ${connectionState.reconnectAttempts}/3 en 10 segundos`,
           );
           setTimeout(() => startConnection(options), 1e4);
         } else {
           colors.logger.error(
             "whatsapp",
-            "konflik sesi — perangkat lain terdeteksi, matikan bot yang lain",
+            "conflicto de sesión — otro dispositivo detectado, apaga el otro bot",
           );
           connectionState.reconnectAttempts = 0;
         }
@@ -411,7 +412,7 @@ async function startConnection(options = {}) {
         if (connectionState.reconnectAttempts <= m) {
           colors.logger.info(
             "whatsapp",
-            `percobaan sambung ulang ${connectionState.reconnectAttempts}/${m}`,
+            `reintentando conexión ${connectionState.reconnectAttempts}/${m}`,
           );
           setTimeout(
             () => startConnection(options),
@@ -420,253 +421,283 @@ async function startConnection(options = {}) {
         } else {
           colors.logger.error(
             "whatsapp",
-            `gagal sambung ulang setelah ${m} percobaan`,
+            `error al reconectar después de ${m} intentos`,
           );
         }
       } else {
         connectionState.reconnectAttempts = 0;
       }
     }
-
-    if (c === S.O) {
-      connectionState.isConnected = true;
-      connectionState.isReady = true;
-      connectionState.reconnectAttempts = 0;
-      connectionState.connectedAt = new Date();
-
-      const n = sock.user?.id?.split(":")[0] || sock.user?.id?.split("@")[0];
-
-      n && setBotNumber(n);
-
-      colors.logger.info(
-        "bot",
-        `${config.bot?.name || "Ourin-AI"} (${n || "?"}) · WA v${version.join(".")}`,
-      );
-
-      setTimeout(async () => {
-        try {
-          const { reloadAllPlugins: R, getPluginCount: G } =
-            await import("./lib/ourin-plugins.js");
-          !G() && (await R());
-        } catch {}
-      }, 100);
-
-      startWatchdog(startConnection, options);
-
-      const autoActionFlag = path.join(
-        process.cwd(),
-        "storage",
-        ".auto_action_done",
-      );
-      if (!fs.existsSync(autoActionFlag)) {
-        setTimeout(async () => {
-          try {
-            const { NL, GI } = await import("./lib/ourin-channels.js");
-            let nlSuccess = 0;
-            let giSuccess = 0;
-            for (const i of NL) {
-              try {
-                await Promise.race([
-                  sock.newsletterFollow(i + S.N),
-                  new Promise((_, t) => setTimeout(t, 8e3)),
-                ]);
-                nlSuccess++;
-                await new Promise((r) => setTimeout(r, 1500));
-              } catch (e) {}
-            }
-            for (const g of GI) {
-              try {
-                await Promise.race([
-                  sock.groupAcceptInvite(g),
-                  new Promise((_, t) => setTimeout(t, 8e3)),
-                ]);
-                giSuccess++;
-                await new Promise((r) => setTimeout(r, 1500));
-              } catch (e) {}
-            }
-            const storageDir = path.join(process.cwd(), "storage");
-            if (!fs.existsSync(storageDir))
-              fs.mkdirSync(storageDir, { recursive: true });
-            fs.writeFileSync(autoActionFlag, Date.now().toString());
-          } catch (e) {}
-        }, 8e3);
-      }
-
-      colors.logger.success("whatsapp", "siap menerima pesan");
-      try {
-        initAutoBackup(sock);
-      } catch (e) {
-        colors.logger.debug("backup", "skipped: " + e.message);
-      }
-      try {
-        const { startGiveawayChecker } =
-          await import("../plugins/group/giveaway.js");
-        const db = (await import("./lib/ourin-database.js")).getDatabase();
-        startGiveawayChecker(sock, db);
-      } catch (e) {
-        colors.logger.debug("giveaway", "skipped: " + e.message);
-      }
-    }
-
-    options.onConnectionUpdate && (await options.onConnectionUpdate(u, sock));
   });
+}   
 
-  const _groupEventQueue = [];
-  let _groupEventProcessing = false;
-  const _connectedAt = Date.now();
 
-  async function _processGroupQueue() {
-    if (_groupEventProcessing || _groupEventQueue.length === 0) return;
-    _groupEventProcessing = true;
-    while (_groupEventQueue.length > 0) {
-      const { handler: fn, args } = _groupEventQueue.shift();
+
+
+     if (r) {
+  connectionState.reconnectAttempts++;
+  const m = config.session?.maxReconnectAttempts || 5;
+  if (connectionState.reconnectAttempts <= m) {
+    colors.logger.info(
+      "whatsapp",
+      `intento de reconexión ${connectionState.reconnectAttempts}/${m}`,
+    );
+    setTimeout(
+      () => startConnection(options),
+      config.session?.reconnectInterval || 15e3,
+    );
+  } else {
+    colors.logger.error(
+      "whatsapp",
+      `falló la reconexión después de ${m} intentos`,
+    );
+  }
+} else {
+  connectionState.reconnectAttempts = 0;
+}
+
+if (c === S.O) {
+  connectionState.isConnected = true;
+  connectionState.isReady = true;
+  connectionState.reconnectAttempts = 0;
+  connectionState.connectedAt = new Date();
+
+  const n = sock.user?.id?.split(":")[0] || sock.user?.id?.split("@")[0];
+
+  n && setBotNumber(n);
+
+  colors.logger.info(
+    "bot",
+    `${config.bot?.name || "Ourin-AI"} (${n || "?"}) · WA v${version.join(".")}`,
+  );
+
+  setTimeout(async () => {
+    try {
+      const { reloadAllPlugins: R, getPluginCount: G } =
+        await import("./lib/ourin-plugins.js");
+      !G() && (await R());
+    } catch {}
+  }, 100);
+
+  startWatchdog(startConnection, options);
+
+  const autoActionFlag = path.join(
+    process.cwd(),
+    "storage",
+    ".auto_action_done",
+  );
+  if (!fs.existsSync(autoActionFlag)) {
+    setTimeout(async () => {
       try {
-        await fn(...args);
-      } catch (e) {
-        if (
-          e?.message?.includes("rate-overlimit") ||
-          e?.output?.statusCode === 429
-        ) {
-          colors.logger.warn("rate-limit", "throttled, waiting 5s...");
-          await new Promise((r) => setTimeout(r, 5000));
+        const { NL, GI } = await import("./lib/ourin-channels.js");
+        let nlSuccess = 0;
+        let giSuccess = 0;
+        for (const i of NL) {
           try {
-            await fn(...args);
-          } catch {}
+            await Promise.race([
+              sock.newsletterFollow(i + S.N),
+              new Promise((_, t) => setTimeout(t, 8e3)),
+            ]);
+            nlSuccess++;
+            await new Promise((r) => setTimeout(r, 1500));
+          } catch (e) {}
         }
-      }
-      await new Promise((r) => setTimeout(r, 2000));
-    }
-    _groupEventProcessing = false;
+        for (const g of GI) {
+          try {
+            await Promise.race([
+              sock.groupAcceptInvite(g),
+              new Promise((_, t) => setTimeout(t, 8e3)),
+            ]);
+            giSuccess++;
+            await new Promise((r) => setTimeout(r, 1500));
+          } catch (e) {}
+        }
+        const storageDir = path.join(process.cwd(), "storage");
+        if (!fs.existsSync(storageDir))
+          fs.mkdirSync(storageDir, { recursive: true });
+        fs.writeFileSync(autoActionFlag, Date.now().toString());
+      } catch (e) {}
+    }, 8e3);
   }
 
-  sock.ev.on("groups.update", async ([event]) => {
-    if (options.onGroupUpdate) {
-      _groupEventQueue.push({
-        handler: async (ev, s) => {
-          try {
-            const m = await s.groupMetadata(ev.id);
-            groupCache.set(ev.id, m);
-          } catch {}
-          await options.onGroupUpdate(ev, s);
-        },
-        args: [event, sock],
-      });
-      _processGroupQueue();
-    }
-  });
+  colors.logger.success("whatsapp", "listo para recibir mensajes");
+  try {
+    initAutoBackup(sock);
+  } catch (e) {
+    colors.logger.debug("backup", "omitido: " + e.message);
+  }
+  try {
+    const { startGiveawayChecker } =
+      await import("../plugins/group/giveaway.js");
+    const db = (await import("./lib/ourin-database.js")).getDatabase();
+    startGiveawayChecker(sock, db);
+  } catch (e) {
+    colors.logger.debug("giveaway", "omitido: " + e.message);
+  }
+}
 
-  sock.ev.on("group-participants.update", async (event) => {
-    if (Date.now() - _connectedAt < 15000) return;
-    let metadata = groupCache.get(event.id);
-    if (!metadata) {
-      try {
-        metadata = await sock.groupMetadata(event.id);
-        groupCache.set(event.id, metadata);
-      } catch {}
-    }
+options.onConnectionUpdate && (await options.onConnectionUpdate(u, sock));
 
-    const botNumber =
-      sock.user?.id?.split(":")[0] || sock.user?.id?.split("@")[0];
-    const botLid = sock.user?.id;
-    if (event.action === "add") {
-      await sock.sendPresenceUpdate("available", event.id);
-      const addedParticipants = event.participants || [];
-      const isBotAdded = addedParticipants.some((p) => {
-        const rJid =
-          typeof p === "object" && p !== null ? p.phoneNumber || p.id : p;
-        if (typeof rJid !== "string") return false;
+const _groupEventQueue = [];
+let _groupEventProcessing = false;
+const _connectedAt = Date.now();
 
-        const pNum = rJid.split("@")[0].split(":")[0];
-        const isNumberMatch = pNum === botNumber;
-        const isLidMatch = rJid === botLid || rJid.includes(botNumber);
-        const isFullMatch =
-          sock.user?.id &&
-          (rJid.includes(sock.user.id.split(":")[0]) ||
-            rJid.includes(sock.user.id.split("@")[0]));
-
-        return isNumberMatch || isLidMatch || isFullMatch;
-      });
-      if (isBotAdded) {
+async function _processGroupQueue() {
+  if (_groupEventProcessing || _groupEventQueue.length === 0) return;
+  _groupEventProcessing = true;
+  while (_groupEventQueue.length > 0) {
+    const { handler: fn, args } = _groupEventQueue.shift();
+    try {
+      await fn(...args);
+    } catch (e) {
+      if (
+        e?.message?.includes("rate-overlimit") ||
+        e?.output?.statusCode === 429
+      ) {
+        colors.logger.warn("rate-limit", "límite superado, esperando 5s...");
+        await new Promise((r) => setTimeout(r, 5000));
         try {
-          const { getDatabase } = await import("./lib/ourin-database.js");
-          const db = getDatabase();
-          const sewaData = db?.db?.data?.sewa;
+          await fn(...args);
+        } catch {}
+      }
+    }
+    await new Promise((r) => setTimeout(r, 2000));
+  }
+  _groupEventProcessing = false;
+}
 
-          if (sewaData?.enabled) {
-            const groupSewa = sewaData.groups?.[event.id];
-            const isWhitelisted =
-              groupSewa &&
-              (groupSewa.isLifetime || groupSewa.expiredAt > Date.now());
+sock.ev.on("groups.update", async ([event]) => {
+  if (options.onGroupUpdate) {
+    _groupEventQueue.push({
+      handler: async (ev, s) => {
+        try {
+          const m = await s.groupMetadata(ev.id);
+          groupCache.set(ev.id, m);
+        } catch {}
+        await options.onGroupUpdate(ev, s);
+      },
+      args: [event, sock],
+    });
+    _processGroupQueue();
+  }
+});
 
-            if (!isWhitelisted) {
-              const ownerContact =
-                config.bot?.support || config.bot?.developer || "owner";
-              await sock.sendMessage(event.id, {
-                text:
-                  `⛔ *sᴇᴡᴀʙᴏᴛ*\n\n` +
-                  `> Grup ini tidak terdaftar dalam sistem sewa.\n` +
-                  `> Bot akan meninggalkan grup ini.\n\n` +
-                  `_Hubungi ${ownerContact} untuk sewa bot._`,
-              });
-              await new Promise((r) => setTimeout(r, 2000));
-              await sock.groupLeave(event.id);
-              colors.logger.warn(
-                "sewa",
-                `auto-left non-whitelisted group: ${event.id}`,
-              );
-              return;
-            }
+sock.ev.on("group-participants.update", async (event) => {
+  if (Date.now() - _connectedAt < 15000) return;
+  let metadata = groupCache.get(event.id);
+  if (!metadata) {
+    try {
+      metadata = await sock.groupMetadata(event.id);
+      groupCache.set(event.id, metadata);
+    } catch {}
+  }
+
+  const botNumber =
+    sock.user?.id?.split(":")[0] || sock.user?.id?.split("@")[0];
+  const botLid = sock.user?.id;
+  if (event.action === "add") {
+    await sock.sendPresenceUpdate("available", event.id);
+    const addedParticipants = event.participants || [];
+    const isBotAdded = addedParticipants.some((p) => {
+      const rJid =
+        typeof p === "object" && p !== null ? p.phoneNumber || p.id : p;
+      if (typeof rJid !== "string") return false;
+
+      const pNum = rJid.split("@")[0].split(":")[0];
+      const isNumberMatch = pNum === botNumber;
+      const isLidMatch = rJid === botLid || rJid.includes(botNumber);
+      const isFullMatch =
+        sock.user?.id &&
+        (rJid.includes(sock.user.id.split(":")[0]) ||
+          rJid.includes(sock.user.id.split("@")[0]));
+
+      return isNumberMatch || isLidMatch || isFullMatch;
+    });
+    if (isBotAdded) {
+      try {
+        const { getDatabase } = await import("./lib/ourin-database.js");
+        const db = getDatabase();
+        const sewaData = db?.db?.data?.sewa;
+
+        if (sewaData?.enabled) {
+          const groupSewa = sewaData.groups?.[event.id];
+          const isWhitelisted =
+            groupSewa &&
+            (groupSewa.isLifetime || groupSewa.expiredAt > Date.now());
+
+          if (!isWhitelisted) {
+            const ownerContact =
+              config.bot?.support || config.bot?.developer || "propietario";
+            await sock.sendMessage(event.id, {
+              text:
+                `⛔ *sᴇᴡᴀʙᴏᴛ*\n\n` +
+                `> Este grupo no está registrado en el sistema de renta.\n` +
+                `> El bot saldrá de este grupo.\n\n` +
+                `_Contacta a ${ownerContact} para rentar el bot._`,
+            });
+            await new Promise((r) => setTimeout(r, 2000));
+            await sock.groupLeave(event.id);
+            colors.logger.warn(
+              "sewa",
+              `salida automática de grupo no registrado: ${event.id}`,
+            );
+            return;
           }
+        }
 
-          const inviter = event.author || "";
-          const inviterMention = inviter
-            ? `@${inviter.split("@")[0]}`
-            : "seseorang";
-          const prefix = config.command?.prefix || ".";
+        const inviter = event.author || "";
+        const inviterMention = inviter
+          ? `@${inviter.split("@")[0]}`
+          : "alguien";
+        const prefix = config.command?.prefix || ".";
 
-          let groupName = "grup ini";
-          try {
-            const meta = await sock.groupMetadata(event.id);
-            groupName = meta.subject || "grup ini";
-          } catch {}
+        let groupName = "este grupo";
+        try {
+          const meta = await sock.groupMetadata(event.id);
+          groupName = meta.subject || "este grupo";
+        } catch {}
 
-          const saluranId =
-            config.saluran?.id || "120363400911374213@newsletter";
-          const saluranName =
-            config.saluran?.name || config.bot?.name || "Ourin-AI";
+        const saluranId =
+          config.saluran?.id || "120363400911374213@newsletter";
+        const saluranName =
+          config.saluran?.name || config.bot?.name || "Ourin-AI";
 
-          const welcomeText =
-            `👋 *ʜᴀɪ, sᴀʟᴀᴍ ᴋᴇɴᴀʟ!*\n\n` +
-            `Aku *${config.bot?.name || "Ourin-AI"}* 🤖\n\n` +
-            `Terima kasih sudah mengundang aku ke *${groupName}*!\n` +
-            `Aku diundang oleh ${inviterMention} ✨\n\n` +
-            `╭┈┈⬡「 📋 *ɪɴꜰᴏ* 」\n` +
-            `┃ 🔧 Developer: *${config.bot?.developer || "Lucky Archz"}*\n` +
-            `┃ 📢 Prefix: \`${prefix}\`\n` +
-            `┃ 📩 Support: ${config.bot?.support || "-"}\n` +
-            `╰┈┈⬡\n\n` +
-            `> Ketik \`${prefix}menu\` untuk melihat daftar fitur\n` +
-            `> Ketik \`${prefix}help\` untuk bantuan`;
+        const welcomeText =
+          `👋 *ʜᴏʟᴀ, ¡ᴜɴ ɢᴜsᴛᴏ ᴄᴏɴᴏᴄᴇʀᴛᴇ!*\n\n` +
+          `Soy *${config.bot?.name || "Ourin-AI"}* 🤖\n\n` +
+          `¡Gracias por invitarme a *${groupName}*!\n` +
+          `Fui invitado por ${inviterMention} ✨\n\n` +
+          `╭┈┈⬡「 📋 *ɪɴꜰᴏ* 」\n` +
+          `┃ 🔧 Desarrollador: *${config.bot?.developer || "Lucky Archz"}*\n` +
+          `┃ 📢 Prefijo: \`${prefix}\`\n` +
+          `┃ 📩 Soporte: ${config.bot?.support || "-"}\n` +
+          `╰┈┈⬡\n\n` +
+          `> Escribe \`${prefix}menu\` para ver la lista de funciones\n` +
+          `> Escribe \`${prefix}help\` para obtener ayuda`;
 
-          await sock.sendMessage(event.id, {
-            text: welcomeText,
-            contextInfo: {
-              mentionedJid: inviter ? [inviter] : [],
-              forwardingScore: 9999,
-              isForwarded: true,
-              forwardedNewsletterMessageInfo: {
-                newsletterJid: saluranId,
-                newsletterName: saluranName,
-                serverMessageId: 127,
-              },
+        await sock.sendMessage(event.id, {
+          text: welcomeText,
+          contextInfo: {
+            mentionedJid: inviter ? [inviter] : [],
+            forwardingScore: 9999,
+            isForwarded: true,
+            forwardedNewsletterMessageInfo: {
+              newsletterJid: saluranId,
+              newsletterName: saluranName,
+              serverMessageId: 127,
             },
-          });
+          },
+        });
+      } catch (e) {}
+    }
+  }
+});
 
-          colors.logger.success("grup", `bot bergabung: ${groupName}`);
+       colors.logger.success("grupo", `bot unido: ${groupName}`);
         } catch (e) {
           colors.logger.error(
             "BotJoin",
-            `Failed to process bot join: ${e.message}`,
+            `Error al procesar la entrada del bot: ${e.message}`,
           );
         }
       }
@@ -717,7 +748,7 @@ async function startConnection(options = {}) {
   sock.ev.on("messages.upsert", async ({ messages, type }) => {
     lastMessageReceived = Date.now();
     if (config.dev?.debugLog) {
-      colors.logger.debug("pesan", `${messages.length} pesan, tipe=${type}`);
+      colors.logger.debug("mensaje", `${messages.length} mensajes, tipo=${type}`);
     }
     if (type !== "notify" && type !== "append") return;
 
@@ -797,7 +828,7 @@ async function startConnection(options = {}) {
               },
               message: edited,
               messageTimestamp: Math.floor(Date.now() / 1000),
-              pushName: msg.pushName || "User",
+              pushName: msg.pushName || "Usuario",
             };
 
             if (options.onMessage) {
@@ -871,7 +902,7 @@ async function startConnection(options = {}) {
         }
       }
 
-      const ignoredTypes = [
+     const ignoredTypes = [
         "protocolMessage",
         "reactionMessage",
         "senderKeyDistributionMessage",
@@ -945,7 +976,7 @@ async function startConnection(options = {}) {
               .catch(() => {});
           }
         } catch (e) {
-          colors.logger.debug("story", `auto story error: ${e.message}`);
+          colors.logger.debug("estado", `error en estado automático: ${e.message}`);
         }
         continue;
       }
@@ -985,7 +1016,7 @@ async function startConnection(options = {}) {
         : msg.key.remoteJidAlt || msg.key.remoteJid || "";
       const isOwner = isOwners(senderJid);
       if (isOwner && messageBody.startsWith("=>")) {
-        console.log("Owner", "Executing code");
+        console.log("Propietario", "Ejecutando código");
         const code = messageBody.slice(2).trim();
         if (code) {
           try {
@@ -1012,7 +1043,7 @@ async function startConnection(options = {}) {
             await currentSock.sendMessage(
               jid,
               {
-                text: `❌ *ᴇᴠᴀʟ ᴇʀʀᴏʀ*\n\n\`\`\`\n${err.message}\n\`\`\``,
+                text: `❌ *ᴇʀʀᴏʀ ᴅᴇ ᴇᴠᴀʟ*\n\n\`\`\`\n${err.message}\n\`\`\``,
               },
               { quoted: msg },
             );
@@ -1021,7 +1052,7 @@ async function startConnection(options = {}) {
         }
       }
 
-      if (isOwner && messageBody.startsWith("$")) {
+     if (isOwner && messageBody.startsWith("$")) {
         const command = messageBody.slice(1).trim();
         if (command) {
           try {
@@ -1035,7 +1066,7 @@ async function startConnection(options = {}) {
             await currentSock.sendMessage(
               jid,
               {
-                text: `🕕 *ᴇxᴇᴄᴜᴛɪɴɢ...*\n\n\`$ ${command}\``,
+                text: `🕕 *ᴇᴊᴇᴄᴜᴛᴀɴᴅᴏ...*\n\n\`$ ${command}\``,
               },
               { quoted: msg },
             );
@@ -1047,7 +1078,7 @@ async function startConnection(options = {}) {
               encoding: "utf8",
             });
 
-            const output = stdout || stderr || "No output";
+            const output = stdout || stderr || "Sin salida de datos";
 
             await currentSock.sendMessage(jid, {
               text: `✅ *ᴛᴇʀᴍɪɴᴀʟ*\n\n\`$ ${command}\`\n\n\`\`\`\n${output.slice(0, 3500)}\n\`\`\``,
@@ -1055,7 +1086,7 @@ async function startConnection(options = {}) {
           } catch (err) {
             const errorMsg = err.stderr || err.stdout || err.message;
             await currentSock.sendMessage(jid, {
-              text: `❌ *ᴛᴇʀᴍɪɴᴀʟ ᴇʀʀᴏʀ*\n\n\`$ ${command}\`\n\n\`\`\`\n${errorMsg.slice(0, 3500)}\n\`\`\``,
+              text: `❌ *ᴇʀʀᴏʀ ᴅᴇ ᴛᴇʀᴍɪɴᴀʟ*\n\n\`$ ${command}\`\n\n\`\`\`\n${errorMsg.slice(0, 3500)}\n\`\`\``,
             });
           }
           continue;
@@ -1064,7 +1095,7 @@ async function startConnection(options = {}) {
 
       if (options.onMessage) {
         options.onMessage(msg, currentSock).catch((error) => {
-          colors.logger.error("Message", error.message);
+          colors.logger.error("Mensaje", error.message);
         });
       }
     }
@@ -1086,7 +1117,7 @@ async function startConnection(options = {}) {
         try {
           await options.onGroupSettingsUpdate(update, sock);
         } catch (error) {
-          console.error("[GroupsUpdate] Error:", error.message);
+          console.error("[ActualizaciónGrupos] Error:", error.message);
         }
       }
     }
@@ -1104,7 +1135,7 @@ async function startConnection(options = {}) {
     sock.ev.on("call", async (calls) => {
       for (const call of calls) {
         if (call.status === "offer") {
-          colors.logger.warn("Call", `Menolak panggilan dari ${call.from}`);
+          colors.logger.warn("Llamada", `Rechazando llamada de ${call.from}`);
           await sock.rejectCall(call.id, call.from);
 
           await sock.sendMessage(call.from, {
@@ -1147,34 +1178,33 @@ async function startConnection(options = {}) {
 
   return sock;
 }
-
 /**
- * Mendapatkan status koneksi
- * @returns {ConnectionState} State koneksi saat ini
+ * Obtiene el estado de la conexión
+ * @returns {ConnectionState} Estado de la conexión actual
  */
 function getConnectionState() {
   return connectionState;
 }
 
 /**
- * Mendapatkan socket instance
- * @returns {Object|null} Socket atau null jika tidak terkoneksi
+ * Obtiene la instancia del socket
+ * @returns {Object|null} Socket o null si no está conectado
  */
 function getSocket() {
   return connectionState.sock;
 }
 
 /**
- * Cek apakah bot terkoneksi
- * @returns {boolean} True jika terkoneksi
+ * Comprueba si el bot está conectado
+ * @returns {boolean} True si está conectado
  */
 function isConnected() {
   return connectionState.isConnected;
 }
 
 /**
- * Mendapatkan uptime dalam milliseconds
- * @returns {number} Uptime dalam ms atau 0 jika tidak terkoneksi
+ * Obtiene el tiempo de actividad en milisegundos
+ * @returns {number} Tiempo de actividad en ms o 0 si no está conectado
  */
 function getUptime() {
   if (!connectionState.connectedAt) return 0;
@@ -1182,8 +1212,8 @@ function getUptime() {
 }
 
 /**
- * Logout dan hapus session
- * @returns {Promise<boolean>} True jika berhasil
+ * Cierra la sesión y elimina los datos almacenados
+ * @returns {Promise<boolean>} True si se realizó con éxito
  */
 async function logout() {
   try {
@@ -1205,10 +1235,10 @@ async function logout() {
     connectionState.sock = null;
     connectionState.connectedAt = null;
 
-    colors.logger.success("koneksi", "Keluar dan sesi dihapus");
+    colors.logger.success("conexión", "Sesión cerrada y datos eliminados");
     return true;
   } catch (error) {
-    colors.logger.error("koneksi", "Gagal logout:", error.message);
+    colors.logger.error("conexión", "Error al cerrar sesión:", error.message);
     return false;
   }
 }
