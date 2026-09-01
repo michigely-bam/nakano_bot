@@ -1,0 +1,75 @@
+import { getDatabase } from '../../src/lib/ourin-database.js'
+
+const pluginConfig = {
+  name: 'jedabcgc',
+  alias: ['delaybcgc', 'setjedabcgc'],
+  category: 'owner',
+  description: 'Atur jeda broadcast grup',
+  usage: '.jedabcgc <waktu> (contoh: 5s, 2m, 1h)',
+  isOwner: true,
+  isPremium: false,
+  isGroup: false,
+  isPrivate: false,
+  cooldown: 5,
+  energi: 0,
+  isEnabled: true
+}
+
+function parseDelay(input) {
+  if (!input) return null
+  const match = input.match(/^(\d+)(s|m|h|d)$/i)
+  if (!match) return null
+  const val = parseInt(match[1])
+  const unit = match[2].toLowerCase()
+  switch (unit) {
+    case 's': return val * 1000
+    case 'm': return val * 60 * 1000
+    case 'h': return val * 60 * 60 * 1000
+    case 'd': return val * 24 * 60 * 60 * 1000
+    default: return null
+  }
+}
+
+function formatDelay(ms) {
+  if (ms >= 86400000) return `${(ms / 86400000).toFixed(0)} hari`
+  if (ms >= 3600000) return `${(ms / 3600000).toFixed(0)} jam`
+  if (ms >= 60000) return `${(ms / 60000).toFixed(0)} menit`
+  return `${(ms / 1000).toFixed(0)} detik`
+}
+
+async function handler(m) {
+  const db = getDatabase()
+  const input = m.text?.trim()
+  const current = db.setting('jedaBcgc') || 5000
+
+  if (!input) {
+    return m.reply(
+      `⏱️ *JEDA BROADCAST GRUP*\n\n` +
+      `Jeda saat ini: *${formatDelay(current)}* (${current}ms)\n\n` +
+      `*CARA PAKAI:*\n` +
+      `> \`${m.prefix}jedabcgc <angka><satuan>\`\n\n` +
+      `*SATUAN:*\n` +
+      `• \`s\` — detik\n• \`m\` — menit\n• \`h\` — jam\n• \`d\` — hari\n\n` +
+      `*CONTOH:*\n` +
+      `> \`${m.prefix}jedabcgc 5s\` → 5 detik\n` +
+      `> \`${m.prefix}jedabcgc 2m\` → 2 menit\n` +
+      `> \`${m.prefix}jedabcgc 1h\` → 1 jam`
+    )
+  }
+
+  const ms = parseDelay(input)
+  if (!ms || ms < 1000) {
+    return m.reply('❌ Format salah. Contoh: `5s`, `2m`, `1h`, `1d`')
+  }
+
+  const prev = current
+  db.setting('jedaBcgc', ms)
+
+  return m.reply(
+    `✅ *Jeda broadcast grup diubah*\n\n` +
+    `Sebelumnya: *${formatDelay(prev)}*\n` +
+    `Sekarang: *${formatDelay(ms)}*`
+  )
+}
+
+export { pluginConfig as config, handler }
